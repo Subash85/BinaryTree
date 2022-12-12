@@ -1,79 +1,127 @@
-package internal
+package BinaryTree
 
-import "fmt"
+import "errors"
 
-type BinaryNode struct {
-	left  *BinaryNode
-	right *BinaryNode
-	data  int64
+type Tree struct {
+	Root *Node
 }
 
-type BinaryTree struct {
-	Root *BinaryNode
+type Node struct {
+	Data  string
+	Left  *Node
+	Right *Node
 }
 
-var size int64
+func (t *Tree) Insert(data string) error {
 
-func (t *BinaryTree) Insert(data int64) *BinaryTree {
 	if t.Root == nil {
-		t.Root = &BinaryNode{data: data, left: nil, right: nil}
-		size++
-	} else {
-		t.Root.insert(data)
-		size++
+		t.Root = &Node{Data: data}
+		return nil
 	}
-	return t
+	return t.Root.Insert(data)
 }
 
-func (n *BinaryNode) insert(data int64) {
+func (n *Node) Insert(data string) error {
+
 	if n == nil {
-		return
-	} else if data <= n.data {
-		if n.left == nil {
-			n.left = &BinaryNode{data: data, left: nil, right: nil}
-		} else {
-			n.left.insert(data)
-		}
-	} else {
-		if n.right == nil {
-			n.right = &BinaryNode{data: data, left: nil, right: nil}
-		} else {
-			n.right.insert(data)
-		}
+		return errors.New("Cannot insert a value into a nil tree")
 	}
+	switch {
+
+	case data == n.Data:
+		return nil
+	case data < n.Data:
+		if n.Left == nil {
+			n.Left = &Node{Data: data}
+			return nil
+		}
+		return n.Left.Insert(data)
+	case data > n.Data:
+		if n.Right == nil {
+			n.Right = &Node{Data: data}
+			return nil
+		}
+		return n.Right.Insert(data)
+	}
+	return nil
 }
 
-func (t *BinaryTree) Delete(data int64) *BinaryTree {
-	if t.Root != nil {
-		t.Root.delete(data)
-		size--
-	} else {
-		t.Root = nil
-		size = 0
+func (t *Tree) Find(s string) (string, bool) {
+	if t.Root == nil {
+		return "", false
 	}
-	return t
+	return t.Root.Find(s)
 }
 
-func (n *BinaryNode) delete(data int64) {
+func (n *Node) Find(s string) (string, bool) {
+
 	if n == nil {
-		return
-	} else if data <= n.data {
-		if n.left == nil {
-			fmt.Println("No Data Found")
-		} else if n.left.data == data {
+		return "", false
+	}
 
-		} else {
-			n.left.delete(data)
-		}
-	} else {
-		if n.right == nil {
-			n.right = &BinaryNode{data: data, left: nil, right: nil}
-		} else {
-			n.right.insert(data)
-		}
+	switch {
+	case s == n.Data:
+		return n.Data, true
+	case s < n.Data:
+		return n.Left.Find(s)
+	default:
+		return n.Right.Find(s)
 	}
 }
 
-func (n *BinaryTree) Size() int64 {
-	return size
+func (n *Node) findMax(parent *Node) (*Node, *Node) {
+	if n == nil {
+		return nil, parent
+	}
+	if n.Right == nil {
+		return n, parent
+	}
+	return n.Right.findMax(n)
+}
+
+func (n *Node) Delete(s string, parent *Node) error {
+	if n == nil {
+		return errors.New("Value to be deleted does not exist in the tree")
+	}
+
+	switch {
+	case s < n.Data:
+		return n.Left.Delete(s, n)
+	case s > n.Data:
+		return n.Right.Delete(s, n)
+	default:
+
+		if n.Left == nil && n.Right == nil {
+			n.replaceNode(parent, nil)
+			return nil
+		}
+
+		if n.Left == nil {
+			n.replaceNode(parent, n.Right)
+			return nil
+		}
+		if n.Right == nil {
+			n.replaceNode(parent, n.Left)
+			return nil
+		}
+
+		replacement, replParent := n.Left.findMax(n)
+
+		n.Data = replacement.Data
+
+		return replacement.Delete(replacement.Data, replParent)
+	}
+}
+
+func (n *Node) replaceNode(parent, replacement *Node) error {
+	if n == nil {
+		return errors.New("replaceNode() not allowed on a nil node")
+	}
+
+	if n == parent.Left {
+		parent.Left = replacement
+		return nil
+	}
+	parent.Right = replacement
+	return nil
 }
