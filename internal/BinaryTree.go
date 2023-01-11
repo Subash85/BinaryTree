@@ -31,19 +31,18 @@ func (n *Node) Insert(data string) error {
 	case data == n.Data:
 		return nil
 	case data < n.Data:
-		if n.Left == nil {
-			n.Left = &Node{Data: data}
-			return nil
-		}
-		return n.Left.Insert(data)
+		n.setValue(n.Left, data)
 	case data > n.Data:
-		if n.Right == nil {
-			n.Right = &Node{Data: data}
-			return nil
-		}
-		return n.Right.Insert(data)
+		n.setValue(n.Right, data)
 	}
 	return nil
+}
+func (n *Node) setValue(node *Node, data string) error {
+	if node == nil {
+		node = &Node{Data: data}
+		return nil
+	}
+	return node.Insert(data)
 }
 
 func (t *Tree) Find(s string) (string, bool) {
