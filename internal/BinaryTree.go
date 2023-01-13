@@ -2,70 +2,62 @@ package BinaryTree
 
 import "errors"
 
-type Tree struct {
-	Root *Node
-}
-
 type Node struct {
-	Data  string
+	Data  int
 	Left  *Node
 	Right *Node
 }
 
-func (t *Tree) Insert(data string) error {
-
-	if t.Root == nil {
-		t.Root = &Node{Data: data}
-		return nil
+func New(data int) *Node {
+	return &Node{
+		Left:  nil,
+		Right: nil,
+		Data:  data,
 	}
-	return t.Root.Insert(data)
 }
 
-func (n *Node) Insert(data string) error {
-
-	if n == nil {
-		return errors.New("Cannot insert a value into a nil tree")
+func (n *Node) Insert(node *Node, data int) (*Node, error) {
+	var err error = nil
+	if node == nil {
+		return New(data), nil
 	}
 	switch {
-
-	case data == n.Data:
-		return nil
-	case data < n.Data:
-		n.setValue(n.Left, data)
+	case data == node.Data:
+		return nil, errors.New("Duplicate error")
+	case data < node.Data:
+		node.Left, err = node.setValue(node.Left, data)
+		//node.Left = left
 	case data > n.Data:
-		n.setValue(n.Right, data)
+		node.Right, err = node.setValue(node.Right, data)
 	}
-	return nil
+	if err != nil {
+		return nil, err
+	}
+
+	return node, nil
 }
-func (n *Node) setValue(node *Node, data string) error {
+func (n *Node) setValue(node *Node, data int) (*Node, error) {
 	if node == nil {
 		node = &Node{Data: data}
-		return nil
+		return node, nil
 	}
-	return node.Insert(data)
+	return node.Insert(node, data)
 }
 
-func (t *Tree) Find(s string) (string, bool) {
-	if t.Root == nil {
-		return "", false
-	}
-	return t.Root.Find(s)
-}
-
-func (n *Node) Find(s string) (string, bool) {
-
-	if n == nil {
-		return "", false
+func (n *Node) Find(node *Node, val int) (*Node, bool) {
+	if node == nil {
+		return nil, false
 	}
 
-	switch {
-	case s == n.Data:
-		return n.Data, true
-	case s < n.Data:
-		return n.Left.Find(s)
-	default:
-		return n.Right.Find(s)
+	if node.Data == val {
+		return node, true
 	}
+	if val < node.Data {
+		return node.Left.Find(node.Left, val)
+	} else if val > node.Data {
+		return node.Right.Find(node.Right, val)
+	}
+	return nil, false
 }
 
 func (n *Node) findMax(parent *Node) (*Node, *Node) {
@@ -78,7 +70,7 @@ func (n *Node) findMax(parent *Node) (*Node, *Node) {
 	return n.Right.findMax(n)
 }
 
-func (n *Node) Delete(s string, parent *Node) error {
+func (n *Node) Delete(s int, parent *Node) error {
 	if n == nil {
 		return errors.New("Value to be deleted does not exist in the tree")
 	}
