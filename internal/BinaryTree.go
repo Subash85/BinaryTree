@@ -26,7 +26,6 @@ func (n *Node) Insert(node *Node, data int) (*Node, error) {
 		return nil, errors.New("Duplicate error")
 	case data < node.Data:
 		node.Left, err = node.setValue(node.Left, data)
-		//node.Left = left
 	case data > n.Data:
 		node.Right, err = node.setValue(node.Right, data)
 	}

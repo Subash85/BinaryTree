@@ -7,7 +7,7 @@ import (
 
 var data = []int{1, 2, 3, 4, 5}
 
-func TestTree(t *testing.T) {
+func TestTree_Insert(t *testing.T) {
 
 	var tree Node
 	for i := 0; i < len(data); i++ {
