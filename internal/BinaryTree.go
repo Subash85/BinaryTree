@@ -59,14 +59,15 @@ func (n *Node) Find(node *Node, val int) (*Node, bool) {
 	return nil, false
 }
 
-func (n *Node) findMax(parent *Node) (*Node, *Node) {
+func (n *Node) FindMax(parent *Node) (*Node, *Node) {
 	if n == nil {
 		return nil, parent
 	}
 	if n.Right == nil {
 		return n, parent
 	}
-	return n.Right.findMax(n)
+
+	return n.Right.FindMax(n)
 }
 
 func (n *Node) Delete(s int, parent *Node) error {
@@ -95,7 +96,7 @@ func (n *Node) Delete(s int, parent *Node) error {
 			return nil
 		}
 
-		replacement, replParent := n.Left.findMax(n)
+		replacement, replParent := n.Left.FindMax(n)
 
 		n.Data = replacement.Data
 
